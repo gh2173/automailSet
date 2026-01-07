@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTP Auto-Mailer Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Google Fonts for premium look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FTP Auto-Mailer Dashboard</h1>
+            <div id="status-indicator" class="status-badge">System Ready</div>
+        </header>
+
+        <main>
+            <section class="card settings-card">
+                <h2>Configuration</h2>
+                <form id="config-form">
+                    <div class="form-group-row">
+                        <div class="form-section">
+                            <h3>FTP Settings</h3>
+                            <label>Host <input type="text" id="ftp_host" name="ftp.host"></label>
+                            <label>Port <input type="number" id="ftp_port" name="ftp.port"></label>
+                            <label>User <input type="text" id="ftp_user" name="ftp.user"></label>
+                            <label>Password <input type="password" id="ftp_password" name="ftp.password"></label>
+                            <label>Target Dir <input type="text" id="ftp_target_dir" name="ftp.target_dir"></label>
+                        </div>
+                        <div class="form-section">
+                            <h3>Email Settings</h3>
+                            <label>SMTP Server <input type="text" id="email_smtp_server" name="email.smtp_server"></label>
+                            <label>SMTP Port <input type="number" id="email_smtp_port" name="email.smtp_port"></label>
+                            <label>Sender Email <input type="email" id="email_sender_email" name="email.sender_email"></label>
+                            <label>Sender Password <input type="password" id="email_sender_password" name="email.sender_password"></label>
+                            <label>Recipients (comma sep) <input type="text" id="email_recipients" name="email.recipients"></label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section full-width">
+                        <h3>Schedule</h3>
+                        <div class="schedule-input">
+                            <label>Daily Run Time (HH:MM) <input type="time" id="schedule_run_time" name="schedule.run_time"></label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button type="submit" class="btn primary">Save Configuration</button>
+                        <button type="button" id="run-now-btn" class="btn secondary">Run Now (Manual Trigger)</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="card logs-card">
+                <div class="logs-header">
+                    <h2>Execution Logs</h2>
+                    <button id="refresh-logs" class="btn small">Refresh</button>
+                </div>
+                <div id="log-viewer" class="log-viewer">
+                    <!-- Logs will appear here -->
+                    <p class="placeholder">Loading logs...</p>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
