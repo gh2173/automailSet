@@ -10,9 +10,22 @@ import tempfile
 
 # PyMuPDF import - handles both 'pymupdf' and legacy 'fitz' packages
 try:
-    import pymupdf as fitz  # Newer pymupdf package
-except ImportError:
-    import fitz  # Legacy fitz package
+    import pymupdf
+    # Verify pymupdf has the open function
+    if not hasattr(pymupdf, 'open'):
+        raise ImportError("pymupdf does not have 'open' attribute")
+    fitz = pymupdf
+except (ImportError, AttributeError):
+    try:
+        import fitz
+        # Verify fitz has the open function
+        if not hasattr(fitz, 'open'):
+            raise ImportError("fitz does not have 'open' attribute")
+    except (ImportError, AttributeError) as e:
+        raise RuntimeError(
+            "PyMuPDF not properly installed. "
+            "Please run: pip uninstall fitz pymupdf -y && pip install pymupdf==1.24.14"
+        ) from e
 
 class EmailManager:
     def __init__(self, smtp_server, smtp_port, sender_email, sender_password):
