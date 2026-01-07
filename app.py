@@ -115,7 +115,7 @@ def run_automation_job():
     # 5. Email File
     email_mgr = EmailManager(email_cfg['smtp_server'], email_cfg['smtp_port'], email_cfg['sender_email'], email_cfg['sender_password'])
     subject = f"RPA Daily Report: {latest_folder}"
-    body = "Please find the attached latest RPA success report."
+    body = "해당 메일은 RPA 성공률에 대한 AUTOMAIL 입니다."
 
     # Send email with PNG inline and PDF attached
     if local_png_path and os.path.exists(local_png_path):
