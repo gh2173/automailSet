@@ -6,8 +6,13 @@ from email.mime.image import MIMEImage
 from email import encoders
 import os
 from email.header import Header
-import fitz  # PyMuPDF for PDF to image conversion
 import tempfile
+
+# PyMuPDF import - handles both 'pymupdf' and legacy 'fitz' packages
+try:
+    import pymupdf as fitz  # Newer pymupdf package
+except ImportError:
+    import fitz  # Legacy fitz package
 
 class EmailManager:
     def __init__(self, smtp_server, smtp_port, sender_email, sender_password):
