@@ -39,16 +39,16 @@ def run_automation_job():
     if is_running:
         log_message("Job already running. Skipping.")
         return
-    
+
     is_running = True
     log_message("Starting automation job...")
-    
+
     config = load_config()
     ftp_cfg = config.get('ftp', {})
     email_cfg = config.get('email', {})
-    
+
     ftp_mgr = FTPManager(ftp_cfg['host'], ftp_cfg['port'], ftp_cfg['user'], ftp_cfg['password'], ftp_cfg['target_dir'])
-    
+
     # 1. Connect to FTP
     success, msg = ftp_mgr.connect()
     if not success:
@@ -56,41 +56,83 @@ def run_automation_job():
         is_running = False
         return
 
-    # 2. Find latest PDF
-    latest_file, msg = ftp_mgr.find_latest_pdf()
-    if not latest_file:
-        log_message(f"Find File Failed: {msg}")
+    # 2. Find latest date folder (YYYY-MM-DD format)
+    latest_folder, msg = ftp_mgr.find_latest_date_folder()
+    if not latest_folder:
+        log_message(f"Find Folder Failed: {msg}")
         ftp_mgr.disconnect()
         is_running = False
         return
-    
-    log_message(f"Found latest file: {latest_file}")
-    
-    # 3. Download File
-    local_path = os.path.join(os.getcwd(), latest_file)
-    success, msg = ftp_mgr.download_file(latest_file, local_path)
-    ftp_mgr.disconnect()
-    
-    if not success:
-        log_message(f"Download Failed: {msg}")
+
+    log_message(f"Found latest folder: {latest_folder}")
+
+    # 3. Get PDF and PNG files from the folder
+    pdf_file, png_file, msg = ftp_mgr.get_files_in_folder(latest_folder)
+    if not pdf_file:
+        log_message(f"Get Files Failed: {msg}")
+        ftp_mgr.disconnect()
         is_running = False
         return
-    
-    # 4. Email File
+
+    log_message(f"Found PDF: {pdf_file}, PNG: {png_file}")
+
+    # 4. Download PDF and PNG files
+    local_pdf_path = os.path.join(os.getcwd(), pdf_file)
+    local_png_path = os.path.join(os.getcwd(), png_file) if png_file else None
+
+    success, msg = ftp_mgr.download_file(pdf_file, local_pdf_path)
+    if not success:
+        log_message(f"Download PDF Failed: {msg}")
+        ftp_mgr.disconnect()
+        is_running = False
+        return
+
+    log_message(f"Downloaded PDF: {local_pdf_path}")
+
+    # Download PNG if it exists
+    if png_file:
+        # Need to change to the folder to download PNG
+        try:
+            ftp_mgr.ftp.cwd(latest_folder)
+            success, msg = ftp_mgr.download_file(png_file, local_png_path)
+            ftp_mgr.ftp.cwd('..')
+            if not success:
+                log_message(f"Download PNG Failed: {msg}")
+                local_png_path = None
+            else:
+                log_message(f"Downloaded PNG: {local_png_path}")
+        except Exception as e:
+            log_message(f"PNG Download Error: {str(e)}")
+            local_png_path = None
+
+    ftp_mgr.disconnect()
+
+    # 5. Email File
     email_mgr = EmailManager(email_cfg['smtp_server'], email_cfg['smtp_port'], email_cfg['sender_email'], email_cfg['sender_password'])
-    subject = f"RPA Daily Report: {latest_file}"
+    subject = f"RPA Daily Report: {latest_folder}"
     body = "Please find the attached latest RPA success report."
 
-    success, msg = email_mgr.send_email_with_attachment(email_cfg['recipients'], subject, body, local_path)
+    # Send email with PNG inline and PDF attached
+    if local_png_path and os.path.exists(local_png_path):
+        success, msg = email_mgr.send_email_with_image_and_pdf(email_cfg['recipients'], subject, body, local_pdf_path, local_png_path)
+    else:
+        # Fallback to PDF only if PNG is not available
+        success, msg = email_mgr.send_email_with_attachment(email_cfg['recipients'], subject, body, local_pdf_path)
+
     if success:
         log_message("Email sent successfully.")
     else:
         log_message(f"Email Failed: {msg}")
 
-    # Cleanup downloaded file
-    if os.path.exists(local_path):
-        os.remove(local_path)
-        
+    # Cleanup downloaded files
+    if os.path.exists(local_pdf_path):
+        os.remove(local_pdf_path)
+        log_message(f"Cleaned up: {local_pdf_path}")
+
+    if local_png_path and os.path.exists(local_png_path):
+        os.remove(local_png_path)
+        log_message(f"Cleaned up: {local_png_path}")
+
     is_running = False
     log_message("Job finished.")
 

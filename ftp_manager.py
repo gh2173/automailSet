@@ -37,39 +37,75 @@ class FTPManager:
             except:
                 self.ftp.close()
 
-    def find_latest_pdf(self):
+    def find_latest_date_folder(self):
+        """오늘 날짜 또는 가장 최신 날짜 폴더 찾기 (YYYY-MM-DD 형식)"""
         if not self.ftp:
             return None, "Not connected"
 
         try:
-            files = self.ftp.nlst()
+            items = self.ftp.nlst()
         except ftplib.error_perm as resp:
-            if str(resp) == "550 No files found":
-                 files = []
-            else:
-                 return None, str(resp)
+            return None, str(resp)
 
-        # Pattern: RPA-성공률-YYYY-MM-dd-hh-mm.pdf
-        # Regex to capture the date parts: (\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})
-        pattern = re.compile(r'RPA-성공률-(\d{4})-(\d{2})-(\d{2})-(\d{2})-(\d{2})\.pdf')
-        
-        matched_files = []
-        for filename in files:
-            match = pattern.match(filename)
+        # YYYY-MM-DD 형식의 폴더명 찾기
+        date_pattern = re.compile(r'^(\d{4})-(\d{2})-(\d{2})$')
+        matched_folders = []
+
+        for item in items:
+            match = date_pattern.match(item)
             if match:
-                # Create a datetime object for comparison
-                dt_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)} {match.group(4)}:{match.group(5)}"
-                dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M")
-                matched_files.append((dt, filename))
+                try:
+                    dt_str = f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+                    dt = datetime.strptime(dt_str, "%Y-%m-%d")
+                    matched_folders.append((dt, item))
+                except ValueError:
+                    continue
 
-        if not matched_files:
-            return None, "No matching files found"
+        if not matched_folders:
+            return None, "No date folders found"
 
-        # Sort by datetime descending
-        matched_files.sort(key=lambda x: x[0], reverse=True)
-        latest_file = matched_files[0][1]
-        
-        return latest_file, "Found latest file"
+        # 가장 최신 폴더 선택
+        matched_folders.sort(key=lambda x: x[0], reverse=True)
+        latest_folder = matched_folders[0][1]
+
+        return latest_folder, "Found latest date folder"
+
+    def get_files_in_folder(self, folder_name):
+        """폴더 안의 PDF와 PNG 파일 찾기"""
+        if not self.ftp:
+            return None, None, "Not connected"
+
+        try:
+            # 폴더로 이동
+            self.ftp.cwd(folder_name)
+            files = self.ftp.nlst()
+
+            # PDF와 PNG 파일 찾기
+            pdf_file = None
+            png_file = None
+
+            for filename in files:
+                if filename.lower().endswith('.pdf'):
+                    pdf_file = filename
+                elif filename.lower().endswith('.png'):
+                    png_file = filename
+
+            # 원래 폴더로 돌아오기
+            self.ftp.cwd('..')
+
+            if not pdf_file:
+                return None, None, "No PDF file found in folder"
+            if not png_file:
+                return pdf_file, None, "No PNG file found (PDF only)"
+
+            return pdf_file, png_file, "Found files"
+
+        except Exception as e:
+            try:
+                self.ftp.cwd('..')
+            except:
+                pass
+            return None, None, str(e)
 
     def download_file(self, filename, local_path):
         if not self.ftp:
