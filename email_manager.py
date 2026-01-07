@@ -6,8 +6,9 @@ from email.mime.image import MIMEImage
 from email import encoders
 import os
 from email.header import Header
-import fitz  # PyMuPDF for PDF to image conversion
+import fitz  # PyMuPDF for PDF to image conversion (pymupdf package)
 import tempfile
+from fitz import FileDataError  # PyMuPDF exception for corrupted files
 
 class EmailManager:
     def __init__(self, smtp_server, smtp_port, sender_email, sender_password):
@@ -231,7 +232,7 @@ class EmailManager:
         except FileNotFoundError:
             return False, "PDF file not found"
 
-        except fitz.FileDataError:
+        except FileDataError:
             return False, "Invalid or corrupted PDF file"
 
         except MemoryError:
