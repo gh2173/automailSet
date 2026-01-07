@@ -80,8 +80,8 @@ def run_automation_job():
     email_mgr = EmailManager(email_cfg['smtp_server'], email_cfg['smtp_port'], email_cfg['sender_email'], email_cfg['sender_password'])
     subject = f"RPA Daily Report: {latest_file}"
     body = "Please find the attached latest RPA success report."
-    
-    success, msg = email_mgr.send_email_with_attachment(email_cfg['recipients'], subject, body, local_path)
+
+    success, msg = email_mgr.send_email_with_pdf_preview(email_cfg['recipients'], subject, body, local_path, dpi=150)
     if success:
         log_message("Email sent successfully.")
     else:
