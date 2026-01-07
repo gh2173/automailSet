@@ -20,7 +20,15 @@ class FTPManager:
             self.ftp.cwd(self.target_dir)
             return True, "Connected successfully"
         except Exception as e:
-            return False, str(e)
+            error_msg = str(e)
+            if "550" in error_msg and self.ftp:
+                try:
+                    # If CWD fails, try to list current directories to help debugging
+                    current_dirs = self.ftp.nlst()
+                    error_msg += f". Available directories: {current_dirs}"
+                except:
+                    pass
+            return False, error_msg
 
     def disconnect(self):
         if self.ftp:

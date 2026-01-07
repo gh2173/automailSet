@@ -4,6 +4,7 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import os
+from email.header import Header
 
 class EmailManager:
     def __init__(self, smtp_server, smtp_port, sender_email, sender_password):
@@ -27,7 +28,10 @@ class EmailManager:
             part = MIMEBase('application', 'octet-stream')
             part.set_payload(attachment.read())
             encoders.encode_base64(part)
-            part.add_header('Content-Disposition', f"attachment; filename= {filename}")
+
+            # RFC 2231 형식으로 파일명 인코딩 (특수문자 및 한글 포함)
+            encoded_filename = Header(filename, 'utf-8').encode()
+            part.add_header('Content-Disposition', 'attachment', filename=encoded_filename)
 
             msg.attach(part)
             attachment.close()

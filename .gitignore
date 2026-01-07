@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs & Temporary Files
+execution_log.txt
+*.log
+
+# Downloaded PDF files (temporary)
+RPA-*.pdf
+
+# Config with sensitive data
+config.json
+
+# OS
+._*
+._.git
+.__pycache__
+._.vscode
+._.idea
+._*.py
+._*.json
+._*.txt
+._*.md
+._static
+._templates
