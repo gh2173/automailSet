@@ -80,30 +80,35 @@ def run_automation_job():
     local_pdf_path = os.path.join(os.getcwd(), pdf_file)
     local_png_path = os.path.join(os.getcwd(), png_file) if png_file else None
 
-    success, msg = ftp_mgr.download_file(pdf_file, local_pdf_path)
-    if not success:
-        log_message(f"Download PDF Failed: {msg}")
-        ftp_mgr.disconnect()
-        is_running = False
-        return
+    # Download PDF - need to be in the folder
+    try:
+        ftp_mgr.ftp.cwd(latest_folder)
+        success, msg = ftp_mgr.download_file(pdf_file, local_pdf_path)
+        if not success:
+            log_message(f"Download PDF Failed: {msg}")
+            ftp_mgr.disconnect()
+            is_running = False
+            return
 
-    log_message(f"Downloaded PDF: {local_pdf_path}")
+        log_message(f"Downloaded PDF: {local_pdf_path}")
 
-    # Download PNG if it exists
-    if png_file:
-        # Need to change to the folder to download PNG
-        try:
-            ftp_mgr.ftp.cwd(latest_folder)
+        # Download PNG if it exists
+        if png_file:
             success, msg = ftp_mgr.download_file(png_file, local_png_path)
-            ftp_mgr.ftp.cwd('..')
             if not success:
                 log_message(f"Download PNG Failed: {msg}")
                 local_png_path = None
             else:
                 log_message(f"Downloaded PNG: {local_png_path}")
-        except Exception as e:
-            log_message(f"PNG Download Error: {str(e)}")
-            local_png_path = None
+
+        # Return to parent folder
+        ftp_mgr.ftp.cwd('..')
+
+    except Exception as e:
+        log_message(f"FTP Navigation Error: {str(e)}")
+        ftp_mgr.disconnect()
+        is_running = False
+        return
 
     ftp_mgr.disconnect()
 
