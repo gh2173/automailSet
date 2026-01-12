@@ -115,7 +115,7 @@ def run_automation_job():
     # 5. Email File
     email_mgr = EmailManager(email_cfg['smtp_server'], email_cfg['smtp_port'], email_cfg['sender_email'], email_cfg['sender_password'])
     subject = f"[Automail] RPA 관제시스템 자동 리포트 ({latest_folder})"
-    body = "해당 메일은 RPA 관제시스템에서 자동 송부되는 Automail입니다. -> http://192.168.195.23.5000/public/OperationRate.html"
+    body = "해당 메일은 RPA 관제시스템에서 자동 송부되는 Automail입니다. -> http://192.168.195.23.8080/public/OperationRate.html"
 
     # Send email with PNG inline and PDF attached
     if local_png_path and os.path.exists(local_png_path):

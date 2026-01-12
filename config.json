@@ -4,16 +4,43 @@
         "port": 21,
         "user": "vega",
         "password": "vegagcc",
-        "target_dir": "/RPA_SUCCESS/"
+        "target_dir": "/RPA/RPA_SUCCESS/"
     },
     "email": {
         "smtp_server": "smtp.office365.com",
         "smtp_port": 587,
-        "sender_email": "your_email@example.com",
-        "sender_password": "your_password",
-        "recipients": ["recipient@example.com"]
+        "sender_email": "lgh0820@nepes.co.kr",
+        "sender_password": "ark@0903",
+        "recipients": [
+            "lgh0820@nepes.co.kr",
+            "shkim0803@nepes.co.kr",
+            "kdi0108@nepes.co.kr",
+            "kyh0313@nepes.co.kr",
+            "bsd0501@nepes.co.kr",
+            "bwlee@nepes.co.kr",
+            "sjkim@nepes.co.kr",
+            "dhkimt@nepes.co.kr",
+            "gunthis@nepes.co.kr",
+            "oty0429@nepes.co.kr",
+            "jhy0646@nepes.co.kr",
+            "hsj1105@nepes.co.kr",
+            "hmj0906@nepes.co.kr",
+            "ksj1135@nepes.co.kr",
+            "kmk0470@nepes.co.kr",
+            "kej0864@nepes.co.kr",
+            "kimjh0617@nepes.co.kr",
+            "khs1202@nepes.co.kr",
+            "jangwi@nepes.co.kr",
+            "hhy0476@nepes.co.kr",
+            "a06300@nepes.co.kr",
+            "a02400@nepes.co.kr",
+            "a01100@nepes.co.kr",
+            "a06400@nepes.co.kr",
+            "a01300@nepes.co.kr",
+            "a02200@nepes.co.kr"
+        ]
     },
     "schedule": {
-        "run_time": "09:00"
+        "run_time": "14:31"
     }
 }
